@@ -1,0 +1,9 @@
+# Binários compilados
+testes/app
+lab01/main
+
+# Debug symbols (macOS)
+**/*.dSYM/
+
+# macOS
+.DS_Store
