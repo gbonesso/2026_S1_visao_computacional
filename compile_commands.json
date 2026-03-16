@@ -1,7 +1,0 @@
-[
-  {
-    "directory": "/Volumes/DiscoExterno/doutorado/2026_S1_visao_computacional/testes",
-    "command": "clang++ -std=c++17 -I/opt/homebrew/opt/opencv/include/opencv4 -c /Volumes/DiscoExterno/doutorado/2026_S1_visao_computacional/testes/min_opencv.cpp",
-    "file": "/Volumes/DiscoExterno/doutorado/2026_S1_visao_computacional/testes/min_opencv.cpp"
-  }
-]

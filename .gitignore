@@ -1,6 +1,8 @@
 # Binários compilados
 testes/app
-lab01/main
+/lab01/ex*
+!/lab01/ex*.cpp 
+teste_img/teste_img
 
 # Debug symbols (macOS)
 **/*.dSYM/
