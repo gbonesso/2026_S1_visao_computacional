@@ -61,12 +61,10 @@ int main(int argc, char** argv) {
   cv::imshow("Combinado (amostragem + quantizacao)", img_combinada);
 
   std::cout << "\n--- Comparacao visual ---\n"
-            << "Resolucao reduzida : bordas e detalhes finos ficam borrados/pixelados;\n"
-            << "                     os tons de cinza permanecem suaves.\n"
-            << "Poucos niveis      : detalhes espaciais sao preservados, mas aparecem\n"
-            << "                     bandas falsas de cor (contouring) nas regioes de\n"
-            << "                     transicao gradual de intensidade.\n"
-            << "Combinado          : ambos os artefatos estao presentes simultaneamente.\n";
+            << "Resolucao reduzida (amostragem) : bordas e detalhes finos ficam borrados/pixelados, mas os tons de cinza permanecem suaves.\n"
+            << "Poucos niveis (quantizacao) : detalhes espaciais sao preservados, mas as regioes de transição entre as cores ficam mais grosseiras\n"
+            << "Combinado (amostragem + quantizacao) : acontece a combinacao dos dois efeitos, bordas e detalhes finos ficam borrados/pixelados e.\n"
+            << "     as regioes de transicao entre as cores ficam mais grosseiras, resultando em uma imagem de qualidade visual pior.\n";
 
   cv::waitKey(0);
   return 0;
