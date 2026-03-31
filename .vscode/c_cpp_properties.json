@@ -4,8 +4,7 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/opt/homebrew/opt/opencv/include/opencv4/**",
-                "/opt/homebrew/Cellar/opencv/4.13.0_6/include/opencv4/**"
+                "/opt/homebrew/opt/opencv/include/opencv4/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang++",

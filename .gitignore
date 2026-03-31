@@ -2,6 +2,8 @@
 testes/app
 /lab01/ex*
 !/lab01/ex*.cpp 
+/lab02/ex*
+!/lab02/ex*.cpp 
 teste_img/teste_img
 
 # Debug symbols (macOS)
