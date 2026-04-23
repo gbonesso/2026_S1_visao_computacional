@@ -5,6 +5,10 @@ testes/app
 /lab02/ex*
 !/lab02/ex*.cpp 
 teste_img/teste_img
+/lab02_hough/de*
+/lab02_hough/sel_data/
+!/lab02_hough/de*.cpp 
+
 
 # Debug symbols (macOS)
 **/*.dSYM/
