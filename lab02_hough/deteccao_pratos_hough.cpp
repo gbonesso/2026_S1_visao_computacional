@@ -46,10 +46,12 @@ Ao final, deve ser contado quantas imagens ficaram em cada categoria.
 #include <iostream>
 #include <vector>
 #include <string>
+#include <filesystem>
+#include <algorithm>
 
 int main() {
     // Caminho para a pasta de imagens
-    std::string folderPath = "sel_data/";
+    std::filesystem::path folderPath = "sel_data";
     
     // Vetor para armazenar os resultados
     std::vector<std::string> results;
@@ -58,10 +60,29 @@ int main() {
     int detectedCount = 0;
     int notDetectedCount = 0;
 
+    std::vector<std::filesystem::path> imageFiles;
+    for (const auto &entry : std::filesystem::directory_iterator(folderPath)) {
+        if (!entry.is_regular_file() || entry.path().extension() != ".jpg") {
+            continue;
+        }
+
+        const std::string stem = entry.path().stem().string();
+        if (!std::all_of(stem.begin(), stem.end(), [](unsigned char ch) {
+                return std::isdigit(ch);
+            })) {
+            continue;
+        }
+
+        imageFiles.push_back(entry.path());
+    }
+
+    std::sort(imageFiles.begin(), imageFiles.end(), [](const auto &a, const auto &b) {
+        return std::stoi(a.stem().string()) < std::stoi(b.stem().string());
+    });
+
     // Loop para processar cada imagem
-    for (int i = 1; i <= 100; ++i) {
-        // Construir o nome do arquivo
-        std::string fileName = folderPath + std::to_string(i) + ".jpg";
+    for (const auto &filePath : imageFiles) {
+        std::string fileName = filePath.string();
         
         // Ler a imagem
         cv::Mat image = cv::imread(fileName);
@@ -73,22 +94,31 @@ int main() {
         // Pré-processamento: converter para escala de cinza e aplicar filtro gaussiano
         cv::Mat gray, blurred;
         cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-        cv::GaussianBlur(gray, blurred, cv::Size(9, 9), 2);
+        cv::GaussianBlur(gray, blurred, cv::Size(7, 7), 1.5);
 
         // Detecção de círculos usando a Transformada de Hough
         std::vector<cv::Vec3f> circles;
-        cv::HoughCircles(blurred, circles, cv::HOUGH_GRADIENT, 1, blurred.rows/8, 200, 100);
+        cv::HoughCircles(blurred, circles, cv::HOUGH_GRADIENT, 1.2, blurred.rows / 3, 120, 45, blurred.rows / 6, blurred.rows / 2);
+
+        cv::Vec3f bestCircle;
+        bool hasBestCircle = false;
+        for (const auto &circle : circles) {
+            if (!hasBestCircle || circle[2] > bestCircle[2]) {
+                bestCircle = circle;
+                hasBestCircle = true;
+            }
+        }
 
         // Contar as imagens com detecção e sem detecção
-        if (circles.size() > 0) {
+        if (hasBestCircle) {
             detectedCount++;
         } else {
             notDetectedCount++;
         }
 
-        // Desenhar os círculos detectados na imagem original
-        for (size_t j = 0; j < circles.size(); ++j) {
-            cv::Vec3i c = circles[j];
+        // Desenhar apenas o círculo mais provável na imagem original
+        if (hasBestCircle) {
+            cv::Vec3i c = bestCircle;
             cv::circle(image, cv::Point(c[0], c[1]), c[2], cv::Scalar(0, 255, 0), 2);
             cv::circle(image, cv::Point(c[0], c[1]), 2, cv::Scalar(0, 0, 255), 3);
         }
@@ -97,11 +127,11 @@ int main() {
         std::cout << "Imagem: " << fileName << " - Círculos detectados: " << circles.size() << std::endl;
 
         // Exibir ou salvar a imagem resultante
-        std::string outputFileName = folderPath + "output_image" + std::to_string(i) + ".jpg";
+        std::string outputFileName = (folderPath / ("output_" + filePath.filename().string())).string();
         cv::imwrite(outputFileName, image);
         
         // Classificar o resultado visualmente (a ser feito manualmente)
-        results.push_back("Classificação da imagem " + std::to_string(i));
+        results.push_back("Classificação da imagem " + filePath.filename().string());
     }
 
     // Exibir os resultados
