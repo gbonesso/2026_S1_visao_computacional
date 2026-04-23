@@ -91,10 +91,28 @@ int main() {
             continue;
         }
 
-        // Pré-processamento: converter para escala de cinza e aplicar filtro gaussiano
-        cv::Mat gray, blurred;
+        // Pré-processamento melhorado para pratos transparentes
+        cv::Mat gray;
         cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-        cv::GaussianBlur(gray, blurred, cv::Size(7, 7), 1.5);
+        
+        // Aplicar filtro bilateral para suavizar mantendo bordas
+        cv::Mat bilateral;
+        cv::bilateralFilter(gray, bilateral, 9, 75, 75);
+        
+        // Aplicar CLAHE (Contrast Limited Adaptive Histogram Equalization)
+        // Muito eficaz para realçar bordas fracas em pratos transparentes
+        cv::Mat clahe_result;
+        cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(2.0, cv::Size(8, 8));
+        clahe->apply(bilateral, clahe_result);
+        
+        // Aplicar morphological closing para conectar bordas fragmentadas
+        cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5));
+        cv::Mat closed;
+        cv::morphologyEx(clahe_result, closed, cv::MORPH_CLOSE, kernel);
+        
+        // Filtro Gaussiano suave apenas para suavização final
+        cv::Mat blurred;
+        cv::GaussianBlur(closed, blurred, cv::Size(5, 5), 1.0);
 
         // Detecção de círculos usando a Transformada de Hough
         std::vector<cv::Vec3f> circles;
@@ -123,7 +141,7 @@ int main() {
             cv::circle(image, cv::Point(c[0], c[1]), 2, cv::Scalar(0, 0, 255), 3);
         }
 
-        // Exibir o parth da imagem e o número de círculos detectados
+        // Exibir o path da imagem e o número de círculos detectados
         std::cout << "Imagem: " << fileName << " - Círculos detectados: " << circles.size() << std::endl;
 
         // Exibir ou salvar a imagem resultante
