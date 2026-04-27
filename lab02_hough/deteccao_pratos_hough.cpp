@@ -97,12 +97,21 @@ int main() {
         
         // Aplicar filtro bilateral para suavizar mantendo bordas
         cv::Mat bilateral;
-        cv::bilateralFilter(gray, bilateral, 9, 75, 75);
+        cv::bilateralFilter(
+            gray, 
+            bilateral, // Imagem de saída
+            9, // d (diâmetro do pixel vizinho)
+            75, // sigmaColor
+            75  // sigmaSpace
+        );
         
         // Aplicar CLAHE (Contrast Limited Adaptive Histogram Equalization)
         // Muito eficaz para realçar bordas fracas em pratos transparentes
         cv::Mat clahe_result;
-        cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(2.0, cv::Size(8, 8));
+        cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(
+            2.4, // clipLimit. Iniciei com 2.0
+            cv::Size(8, 8) // tileGridSize
+        );
         clahe->apply(bilateral, clahe_result);
         
         // Aplicar morphological closing para conectar bordas fragmentadas
@@ -116,7 +125,17 @@ int main() {
 
         // Detecção de círculos usando a Transformada de Hough
         std::vector<cv::Vec3f> circles;
-        cv::HoughCircles(blurred, circles, cv::HOUGH_GRADIENT, 1.2, blurred.rows / 3, 120, 45, blurred.rows / 6, blurred.rows / 2);
+        cv::HoughCircles(
+            blurred, 
+            circles, 
+            cv::HOUGH_GRADIENT, // Método de detecção de círculos
+            1.2, // dp (resolução inversa do acumulador)
+            blurred.rows / 3, // minDist (distância mínima entre os centros dos círculos detectados)
+            120, // param1 (limiar superior para o detector de bordas Canny)
+            45, // param2 (limiar para o centro do círculo na fase de acumulação)
+            blurred.rows / 6, // minRadius (raio mínimo do círculo a ser detectado)
+            blurred.rows / 2 // maxRadius (raio máximo do círculo a ser detectado)
+        );
 
         cv::Vec3f bestCircle;
         bool hasBestCircle = false;
